@@ -17,14 +17,15 @@ class SocketService with ChangeNotifier {
   ServerStatus get serverStatus => _serverStatus;
   IO.Socket get socket => _socket;
 
+  Function get emit => this._socket.emit;
+
   SocketService() {
     _initConfig();
 
   }
 
 
-  void _initConfig() {
-    
+   void _initConfig() { 
     // Dart client
     this._socket = IO.io('http://192.168.1.4:3000/', {
       'transports': ['websocket'],
@@ -44,12 +45,13 @@ class SocketService with ChangeNotifier {
       notifyListeners();
     });
 
-    _socket.on('conectado', (_) {
-      
-      print('33333333333333333333333333333333333333333333333333333');
-      this._serverStatus = ServerStatus.Online;
-      notifyListeners();
-    });
+    //  this._socket.on('nuevo-mensaje', (payload) {
+    //    print('Nuevo mensaje');
+    //    print('Nombre: ${payload['name']}');
+    //    print('Description: ${payload['description']}');
+    //    print(payload.containsKey('description2') ? payload['description2'] : ' No hay mensaje' );
+       
+    //  });
 
   }
 
