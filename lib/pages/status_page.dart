@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 class StatusPage extends StatelessWidget {
   const StatusPage({super.key});
 
+ 
+
   @override
   Widget build(BuildContext context) {
 
@@ -23,7 +25,7 @@ class StatusPage extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.message),
         onPressed: (){
-          socketService.emit('emitir-mensaje',{'name':'Maria Fernanda', 'description':"Cesar Luis", 'description2':"Hola Mundo22"});
+          // socketService.emit('emitir-mensaje',{'name':'Maria Fernanda', 'description':"Cesar Luis", 'description2':"Hola Mundo22"});
         },
       ),
     );

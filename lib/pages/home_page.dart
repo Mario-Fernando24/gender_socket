@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:mobile_genero_example/models/band.dart';
+import 'package:mobile_genero_example/service/socket_service.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -13,23 +15,49 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
-  List<Band> bands =[
-    Band( id: '1',name: 'Champeta',votes: 2),
-    Band( id: '2',name: 'Vallenato',votes: 0),
-    Band( id: '3',name: 'Salsa',votes: 3),
-    Band( id: '4',name: 'Merengue',votes: 1),
-    Band( id: '5',name: 'Pop',votes: 1),
-    Band( id: '6',name: 'Regueton',votes: 1)
-  ];
+  List<Band> bands =[];
+
+   @override
+   void initState() {
+       final socketService = Provider.of<SocketService>(context, listen: false);
+       socketService.socket.on('active-gender', (gender) {
+
+        this.bands = (gender as List)
+        .map((band) => Band.fromMap(band))
+        .toList();
+        
+      setState(() {});
+    });
+   // TODO: implement initState
+     super.initState();
+   }
+
+   @override
+   void dispose() {
+       final socketService = Provider.of<SocketService>(context, listen: false);
+       socketService.socket.off('active-gender');
+    //  TODO: implement dispose
+     super.dispose();
+   }
 
   @override
   Widget build(BuildContext context) {
 
+   final socketService = Provider.of<SocketService>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Musica Colombiana',style: TextStyle(color: Colors.black),),
+        title: Text('Musica ${socketService.serverStatus}',style: TextStyle(color: Colors.black),),
         backgroundColor: Colors.white,
         elevation: 1,
+        actions: [
+          Container(
+            margin:EdgeInsets.only(right: 10),
+            child: (socketService.serverStatus==ServerStatus.Online) 
+            ? Icon(Icons.check_circle,color:Colors.blue[300])
+            : Icon(Icons.offline_bolt,color: Colors.red)
+          )
+        ],
       ),
       body: ListView.builder(
         itemCount: bands.length,
@@ -43,12 +71,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _bandTile(Band band){
+
+       final socketService = Provider.of<SocketService>(context, listen: false);
+
        return Dismissible(
          key: Key(band.id.toString()),
          direction: DismissDirection.startToEnd,
          onDismissed: (direction){
             print(direction);
-            //llamar el borrado
+               socketService.emit('delete-gender',{'id': band.id});
          },
          background: Container(
           padding: EdgeInsets.only(left: 8.0) ,
@@ -67,7 +98,9 @@ class _HomePageState extends State<HomePage> {
                 title: Text(band.name ?? ""),
                 trailing: Text('${band.votes}',style: TextStyle(fontSize: 20.0),),
                 onTap: () =>{
-                  print(band.name)
+                  print(band.id),
+                  socketService.emit('vote-gender',{'id': band.id})
+
                 } ,
             ),
        );
@@ -94,7 +127,9 @@ class _HomePageState extends State<HomePage> {
                   child: Text('Agregar'),
                   elevation: 5,
                   textColor: Colors.blue[100],
-                  onPressed: ()=>addBandToList(textController.text)
+                  onPressed: (){
+                     addBandToList(textController.text);
+                  }
                   )
               ],
             );
@@ -135,13 +170,10 @@ class _HomePageState extends State<HomePage> {
 
 
   void addBandToList(String name){
+     final socketService = Provider.of<SocketService>(context, listen: false);
 
-    print("=========================================================");
-    print(name);
-    print("=========================================================");
-    
     if(name.length>1){
-     this.bands.add(new Band(id: DateTime.now().toString(), name: name,votes: 0));
+      socketService.emit('add-gender',{'name': name});
       setState(() {});
     }
     Navigator.pop(context);

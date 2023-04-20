@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
          child: MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'Material AfrSpp',
-            initialRoute: 'status',
+            initialRoute: 'home',
             routes: {
               'home':(_)=> HomePage(),
               'status':(_)=> StatusPage()
@@ -28,3 +28,15 @@ class MyApp extends StatelessWidget {
        );
   }
 }
+
+//mezquita pub flutter
+//mesquita pub web laravel vue
+//facturacion vue laravel vue
+
+//red social citas java
+//allianz java
+//red social kotlin
+//app de domicilios flutter
+//showroot flutter
+//falta una
+
