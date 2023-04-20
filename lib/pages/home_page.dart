@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:mobile_genero_example/models/band.dart';
 import 'package:mobile_genero_example/service/socket_service.dart';
+import 'package:pie_chart/pie_chart.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -20,16 +21,17 @@ class _HomePageState extends State<HomePage> {
    @override
    void initState() {
        final socketService = Provider.of<SocketService>(context, listen: false);
-       socketService.socket.on('active-gender', (gender) {
-
-        this.bands = (gender as List)
-        .map((band) => Band.fromMap(band))
-        .toList();
-        
-      setState(() {});
-    });
+       socketService.socket.on('active-gender', _handleActiveBans);
    // TODO: implement initState
      super.initState();
+   }
+
+   _handleActiveBans(dynamic gender){
+   
+      this.bands = (gender as List)
+              .map((band) => Band.fromMap(band))
+              .toList();
+              setState(() {});
    }
 
    @override
@@ -59,10 +61,19 @@ class _HomePageState extends State<HomePage> {
           )
         ],
       ),
-      body: ListView.builder(
-        itemCount: bands.length,
-        itemBuilder: ( context, i) =>_bandTile(bands[i])
-       ),
+      body: Column(
+        children: [
+
+         _showGraf(),
+
+         Expanded(
+           child: ListView.builder(
+            itemCount: bands.length,
+            itemBuilder: ( context, i) =>_bandTile(bands[i])
+                ),
+         ),
+        ],
+      ),
        floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         elevation: 1,
@@ -178,6 +189,26 @@ class _HomePageState extends State<HomePage> {
     }
     Navigator.pop(context);
 
+  }
+
+  Widget _showGraf(){
+  
+    Map<String, double> dataMap = new Map();
+    // dataMap.putIfAbsent("Flutter",() => 4);
+    bands.forEach((band){
+      print(band.votes.toString());
+      dataMap.putIfAbsent(band.name ?? "",() => double.parse(band.votes.toString()));
+    });
+    
+
+    return Container(
+      width: double.infinity,
+      height: 200,
+      child: PieChart(dataMap: dataMap)
+      ); 
+
+   
+  
   }
 
 
